@@ -1,0 +1,19 @@
+<html py:extends="master.xhtml" py:strip="True">
+<head py:block="head" py:strip="True">
+    <title py:block="Teams">Teams</title>
+</head>
+
+<body py:block="body" py:strip="True">
+    <div class="main_content">
+        <table border="2" width="100%">
+            <thead bgcolor="lightgray">
+            <td align="center"><strong>Team id</strong></td><td align="center"><strong>Team name</strong></td>
+            </thead>
+            <tr py:for="id, name in teams.items()">
+                <td py:content="id" align="center">Team name</td>
+                <td py:content="name" align="center">Team name</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

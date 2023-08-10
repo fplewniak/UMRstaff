@@ -1,0 +1,32 @@
+<html py:extends="master.xhtml" py:strip="True">
+<head py:block="head" py:strip="True">
+    <title py:block="master_title">${team_name} - Team page</title>
+</head>
+
+<body py:block="body" py:strip="True">
+<div class="main_content">
+    <span py:replace="team_name">Page Name Goes Here</span>
+
+    <table border="2" width="100%">
+        <thead bgcolor="lightgray">
+        <td align="center"><strong>Name</strong></td>
+        <td align="center" colspan="${len(team_leader)}"><strong>Leader</strong></td>
+        </thead>
+        <tr>
+            <td py:content="team_name" align="center">Name</td>
+            <td align="center" py:for="p in team_leader">
+                <a href="/people/${p.id}"><span py:content="p.name">Leader</span></a>
+                <nbsp></nbsp>
+            </td>
+        </tr>
+    </table>
+     <div class="members">
+         <ul>
+             <li py:for="p in team_members">
+                <a href="/people/${p.id}" py:content="p.name">Member</a>
+            </li>
+         </ul>
+     </div>
+</div>
+</body>
+</html>

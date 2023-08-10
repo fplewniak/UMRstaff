@@ -1,0 +1,14 @@
+<html py:extends="master.xhtml" py:strip="True">
+<head py:block="head" py:strip="True">
+    <title py:block="master_title">${address}</title>
+</head>
+
+<body py:block="body" py:strip="True">
+    <div class="main_content">
+        <div class="main_title">${address}</div>
+        <ul class="people" py:for="p in sorted(people, key=lambda x: x.surname)">
+            <li><a href="/people/$p.id">${p.surname} ${p.first_name}</a></li>
+        </ul>
+    </div>
+</body>
+</html>
