@@ -61,16 +61,17 @@ def init_model(engine):
 # Import your model modules here.
 from umrstaff.model.auth import User, Group, Permission
 
-from umrstaff.model.team import Team
 from umrstaff.model.staff import Staff
-from umrstaff.model.team_leaders import TeamLeaders
+# from umrstaff.model.team_leaders import TeamLeaders
+from umrstaff.model.team import Team
 from umrstaff.model.team_members import TeamMembers
 from umrstaff.model.mailinglist import MailingList
 from umrstaff.model.mailing_list_directory import MailingListDirectory
-from umrstaff.model.phone_number import PhoneNumber
-from umrstaff.model.phone_directory import PhoneDirectory
-from umrstaff.model.category import Category
-from umrstaff.model.staff_category import StaffCategory
+from umrstaff.model.contract import Contract
+# from umrstaff.model.phone_number import PhoneNumber
+# from umrstaff.model.phone_directory import PhoneDirectory
+# from umrstaff.model.category import Category
+# from umrstaff.model.staff_category import StaffCategory
 
 
 __all__ = ('User', 'Group', 'Permission')

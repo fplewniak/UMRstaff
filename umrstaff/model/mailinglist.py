@@ -16,7 +16,6 @@ class MailingList(DeclarativeBase):
     description = Column(Text)
 
     def add(self, email):
-        print(type(email))
         self.address = email.address
         self.description = email.description
 

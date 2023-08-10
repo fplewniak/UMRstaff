@@ -14,7 +14,7 @@ from tgext.admin.controller import AdminController
 
 from umrstaff.lib.base import BaseController
 from umrstaff.controllers.error import ErrorController
-from umrstaff.model.data import TeamData, StaffData, PhoneNumberData, MailingListData
+from umrstaff.model.data import TeamData, StaffData, MailingListData
 
 from umrstaff.model.team import Team
 from umrstaff.model.staff import Staff
@@ -111,7 +111,20 @@ class RootController(BaseController):
         return dict(staff=staff)
 
     @expose('umrstaff.templates.people')
-    def people(self, staff_id=1, action='display'):
+    def people(self, staff_id=1):
+        data = StaffData(staff_id).to_dict()
+        if len(tg.request.args_params) > 1 and self.can_edit():
+            StaffData(staff_id).save(tg.request.args_params)
+            data = StaffData(staff_id).to_dict()
+        if self.can_edit():
+            data['editable'] = '1'
+        else:
+            data['editable'] = '0'
+        return data
+
+
+    @expose('umrstaff.templates.people')
+    def people_off(self, staff_id=1, action='display'):
         data = StaffData(staff_id).to_dict()
         # data['params'] = tg.request.args_params
         print(tg.request.args_params)

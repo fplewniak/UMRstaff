@@ -31,22 +31,23 @@ class TeamData():
     @property
     def leader(self):
         leader = []
-        query = (DBSession.query(Staff.id, Team, TeamLeaders)
-                 .join(Team, TeamLeaders.team == Team.id)
-                 .join(Staff, TeamLeaders.leader == Staff.id)).filter(Team.id == self.id)
+        query = (DBSession.query(Staff.id, Team, TeamMembers)
+                 .join(Team, TeamMembers.team == Team.id)
+                 .join(Staff, TeamMembers.member == Staff.id)
+                 .filter(Team.id == self.id).filter(TeamMembers.is_leader == True))
         for staff_id, _, _ in query.all():
             leader.append(StaffData(staff_id))
         return leader
 
     @property
     def members(self):
-        leader = []
+        members = []
         query = (DBSession.query(Staff.id, Team, TeamMembers)
                  .join(Team, TeamMembers.team == Team.id)
                  .join(Staff, TeamMembers.member == Staff.id)).filter(Team.id == self.id)
         for staff_id, _, _ in query.all():
-            leader.append(StaffData(staff_id))
-        return leader
+            members.append(StaffData(staff_id))
+        return members
 
     def to_dict(self):
         return {'team_id': self.id,
@@ -58,9 +59,13 @@ class TeamData():
 
 class StaffData():
     def __init__(self, staff_id):
-        query = DBSession.query(Staff.first_name, Staff.surname, Staff.email).filter(Staff.id == staff_id)
-        self.id = staff_id
-        (self.first_name, self.surname, self.email) = query.first()
+        staff = DBSession.query(Staff).filter(Staff.id == staff_id).first()
+        self.id = staff.id
+        (self.first_name, self.surname, self.email) = (staff.first_name, staff.surname, staff.email)
+        (self.office, self.lab) = (staff.office, staff.lab)
+        (self.office_tel, self.lab_tel, self.perso_tel) = (staff.office_tel, staff.lab_tel, staff.perso_tel)
+        (self.emergency_contact, self.emergency_tel) = (staff.emergency_contact, staff.emergency_tel)
+        self.user = staff.user
 
     @property
     def name(self):
@@ -73,14 +78,6 @@ class StaffData():
                  .filter(TeamMembers.member == self.id))
         teams = [TeamData(team_id) for team_id, _ in query.all()]
         return teams
-
-    @property
-    def phone_numbers(self):
-        query = (DBSession.query(PhoneNumber.id, PhoneDirectory.phone_number)
-                 .join(PhoneNumber, PhoneDirectory.phone_number == PhoneNumber.id)
-                 .filter(PhoneDirectory.staff == self.id))
-        phone_numbers = [PhoneNumberData(phone_id) for phone_id, _ in query.all()]
-        return phone_numbers
 
     @property
     def mailing_lists(self):
@@ -96,14 +93,28 @@ class StaffData():
                 'surname': self.surname,
                 'full_name': ' '.join([self.first_name, self.surname]),
                 'teams': self.teams,
-                'tel': self.phone_numbers,
+                'office': self.office,
+                'office_tel': self.office_tel,
+                'lab': self.lab,
+                'lab_tel': self.lab_tel,
+                'perso_tel': self.perso_tel,
                 'email': self.email,
-                'mailing_lists': self.mailing_lists
+                'mailing_lists': self.mailing_lists,
+                'emergency_contact': self.emergency_contact,
+                'emergency_tel': self.emergency_tel,
+                'user': self.user,
                 }
 
     def save(self, params):
-        staff = model.DBSession.query(Staff).filter(Staff.id==self.id).first()
+        staff = model.DBSession.query(Staff).filter(Staff.id == self.id).first()
         staff.email = params['email']
+        staff.office = params['office']
+        staff.office_tel = params['office_tel']
+        staff.lab = params['lab']
+        staff.lab_tel = params['lab_tel']
+        staff.perso_tel = params['perso_tel']
+        staff.emergency_contact = params['emergency_contact']
+        staff.emergency_tel = params['emergency_tel']
 
         for email in params['mailing_list'].split(','):
             if MailingList.exists(email):
@@ -113,19 +124,6 @@ class StaffData():
                 self.add_email(email)
 
         MailingListDirectory.clean(self.id, [MailingList.get_id(email) for email in params['mailing_list'].split(',')])
-
-        number_ids = []
-        for location in ['office', 'lab', 'perso']:
-            for number in params[f'tel_{location}'].split(','):
-                if PhoneNumber.exists(number):
-                    if PhoneDirectory.is_not_staff_phone(self.id, PhoneNumber.get_id(number)):
-                        self.associate_phone_number(number)
-                elif number:
-                    print(f'add {number}')
-                    self.add_phone_number(number, location)
-                number_ids.append(PhoneNumber.get_id(number))
-
-        PhoneDirectory.clean(self.id, number_ids)
 
         params['teams'] = [params['teams']] if isinstance(params['teams'], str) else params['teams']
         print(params['teams'])
@@ -140,71 +138,9 @@ class StaffData():
                 else:
                     print('Do nothing')
             else:
-                for tm in model.DBSession.query(TeamMembers).filter(TeamMembers.member==self.id).filter(TeamMembers.team==team.id).all():
+                for tm in model.DBSession.query(TeamMembers).filter(TeamMembers.member == self.id).filter(
+                        TeamMembers.team == team.id).all():
                     model.DBSession.delete(tm)
-
-    def add_email(self, address, mailing_list=0):
-        db_email = model.MailingList()
-        EmailTuple = model.MailingList.namedtuple()
-        db_email.add(EmailTuple(address, mailing_list))
-        model.DBSession.add(db_email)
-        model.DBSession.flush()
-        self.associate_email(address)
-
-    def associate_email(self, address):
-        email_id = MailingList.get_id(address)
-        db_email = model.MailingListDirectory()
-        EmailDirTuple = model.MailingListDirectory.namedtuple()
-        db_email.add(EmailDirTuple(email_id, self.id))
-        model.DBSession.add(db_email)
-        model.DBSession.flush()
-
-    def add_phone_number(self, number, location):
-        db_phone = model.PhoneNumber()
-        PhoneNumberTuple = model.PhoneNumber.namedtuple()
-        db_phone.add(PhoneNumberTuple(number, location))
-        model.DBSession.add(db_phone)
-        model.DBSession.flush()
-        self.associate_phone_number(number)
-
-    def associate_phone_number(self, number):
-        phone_id = PhoneNumber.get_id(number)
-        db_phone = model.PhoneDirectory()
-        PhoneDirTuple = model.PhoneDirectory.namedtuple()
-        db_phone.add(PhoneDirTuple(phone_id, self.id))
-        model.DBSession.add(db_phone)
-        model.DBSession.flush()
-
-
-class PhoneNumberData():
-    def __init__(self, phone_id):
-        self.id = phone_id
-
-    @property
-    def number(self):
-        query = DBSession.query(PhoneNumber.number).filter(PhoneNumber.id == self.id)
-        return query.first()[0]
-
-    @property
-    def location(self):
-        query = DBSession.query(PhoneNumber.location).filter(PhoneNumber.id == self.id)
-        return query.first()[0]
-
-    @property
-    def people(self):
-        query = (DBSession.query(Staff.id, PhoneDirectory.staff)
-                 .join(Staff, PhoneDirectory.staff == Staff.id)
-                 .filter(PhoneDirectory.phone_number == self.id))
-        people = [StaffData(staff_id) for staff_id, _ in query.all()]
-        return people
-
-    def to_dict(self):
-        return {'phone_id': self.id,
-                'number': self.number,
-                'people': self.people,
-                'location': self.location,
-                }
-
 
 class MailingListData():
     def __init__(self, email_id):

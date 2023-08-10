@@ -14,14 +14,16 @@ class TeamMembers(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     member = Column(Integer, ForeignKey('staff.id'), nullable=True, index=True)
     team = Column(Integer, ForeignKey('team.id'), nullable=True, index=True)
+    is_leader = Column(Boolean)
 
     def add(self, team_member):
         self.member = team_member.member
         self.team = team_member.team
+        self.is_leader = team_member.is_leader
 
     @staticmethod
     def namedtuple():
-        return namedtuple('TeamMember', ['member', 'team'])
+        return namedtuple('TeamMember', ['member', 'team', 'is_leader'])
 
     @staticmethod
     def is_not_team_member(staff_id, team_id):

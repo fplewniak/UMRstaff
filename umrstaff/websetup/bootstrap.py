@@ -15,9 +15,23 @@ def bootstrap(command, conf, vars):
         admin_user = model.User()
         admin_user.user_name = 'admin'
         admin_user.display_name = 'Main administrator'
-        admin_user.email_address = 'f.plewniak@unistra.fr'
+        admin_user.email_address = 'frederic.plewniak@cnrs.fr'
         admin_user.password = 'adminpass'
         model.DBSession.add(admin_user)
+
+        user = model.User()
+        user.user_name = 'fplewniak'
+        user.display_name = 'fplewniak'
+        user.email_address = 'f.plewniak@unistra.fr'
+        user.password = 'fplewniak'
+        model.DBSession.add(user)
+
+        user = model.User()
+        user.user_name = 'charvin'
+        user.display_name = 'charvin'
+        user.email_address = 'charvin@unistra.fr'
+        user.password = 'charvin'
+        model.DBSession.add(user)
 
         admin_group = model.Group()
         admin_group.group_name = 'managers'
@@ -35,18 +49,21 @@ def bootstrap(command, conf, vars):
         admin.permission_name = 'admin'
         admin.description = 'This permission gives an administrative right'
         admin.groups.append(admin_group)
+        model.DBSession.add(admin)
 
         adduser = model.Permission()
         adduser.permission_name = 'adduser'
         adduser.description = 'This permission grants the right to create new users'
         adduser.groups.append(admin_group)
+        adduser.groups.append(edit_group)
+        model.DBSession.add(adduser)
 
         edit = model.Permission()
         edit.permission_name = 'edit'
         edit.description = 'This permission grants the right to create new users'
+        edit.groups.append(admin_group)
         edit.groups.append(edit_group)
-
-        model.DBSession.add(admin)
+        model.DBSession.add(edit)
 
         #### Permanent staff members
         print('Staff members')
@@ -64,15 +81,7 @@ def bootstrap(command, conf, vars):
             db_team.add(team)
             model.DBSession.add(db_team)
 
-        #### Team leader table (allowing more than one leader for one team)
-        print('Team leaders')
-        team_leaders = pandas.read_csv('initial_data/team_leaders.csv')
-        for team_leader in team_leaders.itertuples():
-            db_team_leader = model.TeamLeaders()
-            db_team_leader.add(team_leader)
-            model.DBSession.add(db_team_leader)
-
-        #### Team leader table (allowing more than one leader for one team)
+        #### Team members
         print('Team members')
         team_members = pandas.read_csv('initial_data/team_members.csv')
         for team_member in team_members.itertuples():
@@ -80,54 +89,19 @@ def bootstrap(command, conf, vars):
             db_team_members.add(team_member)
             model.DBSession.add(db_team_members)
 
-        #### E-mail table
-        print('E-mail addresses')
-        emails = pandas.read_csv('initial_data/mailing_lists.csv')
-        for email in emails.itertuples():
-            db_email = model.MailingList()
-            db_email.add(email)
-            model.DBSession.add(db_email)
+        #### Mailing lists
+        print('Mailing lists')
+        mailing_lists = pandas.read_csv('initial_data/mailing_lists.csv')
+        for mailing_list in mailing_lists.itertuples():
+            db_mailing_list = model.MailingList()
+            db_mailing_list.add(mailing_list)
+            model.DBSession.add(db_mailing_list)
 
-        #### E-mail directory table
-        print('E-mail directory')
-        email_directory = pandas.read_csv('initial_data/mailing_list_directory.csv')
-        for email in email_directory.itertuples():
-            db_email = model.MailingListDirectory()
-            db_email.add(email)
-            model.DBSession.add(db_email)
-
-        #### Phone table
-        print('Phone numbers')
-        phone_numbers = pandas.read_csv('initial_data/phone_number.csv')
-        for phone_number in phone_numbers.itertuples():
-            db_phone_number = model.PhoneNumber()
-            db_phone_number.add(phone_number)
-            model.DBSession.add(db_phone_number)
-
-        #### Phone directory table
-        print('Phone directory')
-        phone_directory = pandas.read_csv('initial_data/phone_directory.csv')
-        for phone_number in phone_directory.itertuples():
-            db_phone_number = model.PhoneDirectory()
-            db_phone_number.add(phone_number)
-            model.DBSession.add(db_phone_number)
-
-        #### Category table
-        print('Categories')
-        categories = pandas.read_csv('initial_data/category.csv')
-        for category in categories.itertuples():
-            db_category = model.Category()
-            db_category.add(category)
-            model.DBSession.add(db_category)
-
-        #### Staff/Category table
-        print('Staff category')
-        categories = pandas.read_csv('initial_data/staff_category.csv')
-        for category in categories.itertuples():
-            db_category = model.StaffCategory()
-            db_category.add(category)
-            model.DBSession.add(db_category)
-
+        mailing_lists_dir = pandas.read_csv('initial_data/mailing_list_directory.csv')
+        for mailing_list in mailing_lists_dir.itertuples():
+            db_mailing_list = model.MailingListDirectory()
+            db_mailing_list.add(mailing_list)
+            model.DBSession.add(db_mailing_list)
 
         model.DBSession.flush()
         transaction.commit()

@@ -16,19 +16,41 @@
     <div class="team_name" py:for="team in sorted(teams, key=lambda x: x.name)">
         <span><a href="/team/$team.id">${team.name}</a></span>
     </div>
-    <div class="phone_numbers" py:for="phone in tel">
-        <span class="row_lead">Telephone (${phone.location}): </span>
-        <span><a href="/phone_number/$phone.id">${phone.number}</a></span>
+    <div class="general_list">
+        <span class="row_lead">Office: </span>
+        <span>${office}</span>
     </div>
-    <div class="email">
+    <div class="general_list">
+        <span class="row_lead">Lab: </span>
+        <span>${lab}</span>
+    </div>
+    <div>
         <span class="row_lead">Email: </span>
-        <span><a href="mailto:$email">${email}</a></span>
+        <span>${email}</span>
+    </div>
+    <div class="phone_numbers">
+        <div>
+            <span class="row_lead">Telephone (office): </span>
+            <span>${office_tel}</span>
+        </div>
+        <div>
+            <span class="row_lead">Telephone (lab): </span>
+            <span>${lab_tel}</span>
+        </div>
+        <div>
+            <span class="row_lead">Telephone (perso): </span>
+            <span>${perso_tel}</span>
+        </div>
     </div>
     <div class="mailing_list">
         <span class="row_lead">Mailing lists: </span>
         <ul py:for="mailing_list in mailing_lists">
             <li><a href="/mailing_list/$mailing_list.id">${mailing_list.address}</a></li>
         </ul>
+    </div>
+    <div class="general_list">
+        <span class="row_lead">Emergency contact: </span>
+        <span>${emergency_contact} ${emergency_tel}</span>
     </div>
 </div>
 </body>
