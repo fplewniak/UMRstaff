@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import *
 from sqlalchemy.orm import mapper, relation
 from sqlalchemy import Table, ForeignKey, Column
@@ -20,8 +22,9 @@ class Position(DeclarativeBase):
     def add(self, position):
         self.supervisor = position.supervisor
         self.staff = position.staff
-        self.from_date = position.from_date
-        self.to_date = position.to_date
+        self.from_date = datetime.strptime(str(position.from_date), '%d/%m/%Y').date()
+        self.to_date = datetime.strptime(str(position.to_date), '%d/%m/%Y').date()
         self.status = position.status
         self.org = position.org
         self.reference = position.reference
+

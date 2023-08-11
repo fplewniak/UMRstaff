@@ -107,7 +107,7 @@ class RootController(BaseController):
 
     @expose('umrstaff.templates.staff')
     def staff(self):
-        staff = [StaffData(staff.id) for staff in DBSession.query(Staff).all()]
+        staff = [StaffData(staff.id) for staff in DBSession.query(Staff).filter(Staff.id != 0).all()]
         return dict(staff=staff)
 
     @expose('umrstaff.templates.people')
@@ -122,35 +122,20 @@ class RootController(BaseController):
             data['editable'] = '0'
         return data
 
-
-    @expose('umrstaff.templates.people')
-    def people_off(self, staff_id=1, action='display'):
-        data = StaffData(staff_id).to_dict()
-        # data['params'] = tg.request.args_params
-        print(tg.request.args_params)
-        if len(tg.request.args_params) > 1 and self.can_edit():
-            StaffData(staff_id).save(tg.request.args_params)
-            # self.save_data(staff_id, tg.request.args_params)
-            data = StaffData(staff_id).to_dict()
-        if self.can_edit():
-            data['editable'] = '1'
-        else:
-            data['editable'] = '0'
-        return data
-
     @expose('umrstaff.templates.people_edit')
     @require(predicates.has_permission('edit', msg=l_('Only for the editors')))
     def people_edit(self, staff_id=1):
         if len(tg.request.args_params) > 1:
             redirect(f'/people/{staff_id}', params=tg.request.args_params)
         data = StaffData(staff_id).to_dict()
+        data['supervisor_list'] = [(staff.id, StaffData(staff.id).name) for staff in model.DBSession.query(Staff).all()]
         team_names = [team.name for team in data['teams']]
-        data['team_list'] = {team.name: (team.id, team.name in team_names) for team in DBSession.query(Team).all()}
+        data['team_list'] = {team.name: (team.id, team.name in team_names, team.rank) for team in DBSession.query(Team).all()}
         return data
 
-    @expose('umrstaff.templates.phone_number')
-    def phone_number(self, phone_id=1):
-        return PhoneNumberData(phone_id).to_dict()
+    # @expose('umrstaff.templates.phone_number')
+    # def phone_number(self, phone_id=1):
+    #     return PhoneNumberData(phone_id).to_dict()
 
     @expose('umrstaff.templates.mailing_list')
     def mailing_list(self, email_id=1):

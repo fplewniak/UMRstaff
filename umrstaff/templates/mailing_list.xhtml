@@ -6,6 +6,7 @@
 <body py:block="body" py:strip="True">
     <div class="main_content">
         <div class="main_title">${address}</div>
+        <div>${description}</div>
         <ul class="people" py:for="p in sorted(people, key=lambda x: x.surname)">
             <li><a href="/people/$p.id">${p.surname} ${p.first_name}</a></li>
         </ul>

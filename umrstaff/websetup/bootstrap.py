@@ -57,11 +57,24 @@ def bootstrap(command, conf, vars):
 
         #### Permanent staff members
         print('Staff members')
+        db_staff = model.Staff()
+        db_staff.id = 0
+        db_staff.first_name = ''
+        db_staff.surname = ''
+        model.DBSession.add(db_staff)
         staff_members = pandas.read_csv('initial_data/staff.csv')
         for staff in staff_members.itertuples():
             db_staff = model.Staff()
             db_staff.add(staff)
             model.DBSession.add(db_staff)
+
+        #Positions
+        print('Positions')
+        positions = pandas.read_csv('initial_data/positions.csv')
+        for position in positions.itertuples():
+            db_position = model.Position()
+            db_position.add(position)
+            model.DBSession.add(db_position)
 
         #### Teams
         print('Teams')

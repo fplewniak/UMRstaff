@@ -10,8 +10,8 @@ class Team(DeclarativeBase):
 
     id = Column(Integer, primary_key=True)
     name = Column(Text)
-    # leader = Column(Text, unique=True)
-    #leader = Column(Integer, ForeignKey('staff.id'), nullable=True, index=True)
+    rank = Column(Text)
 
     def add(self, team):
         self.name = team.name
+        self.rank = team.rank

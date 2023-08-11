@@ -17,6 +17,21 @@
         <span><a href="/team/$team.id">${team.name}</a></span>
     </div>
     <div class="general_list">
+        <span>${position.status} </span>
+        <span>${position.org} </span>
+        <py:if test="supervisor.id != 0">
+            <span>Supervisor <a href="/people/$supervisor.id">${supervisor.name}</a></span>
+        </py:if>
+        <py:if test="str(position.from_date) != '1970-01-01'">
+            <span>from ${position.from_date}</span>
+        </py:if>
+        <py:if test="str(position.to_date) != '1970-01-01'">
+            <span>to ${position.to_date}</span>
+        </py:if>
+
+    </div>
+
+    <div class="general_list">
         <span class="row_lead">Office: </span>
         <span>${office}</span>
     </div>
@@ -26,7 +41,7 @@
     </div>
     <div>
         <span class="row_lead">Email: </span>
-        <span>${email}</span>
+        <span><a href="mailto:$email">${email}</a></span>
     </div>
     <div class="phone_numbers">
         <div>
