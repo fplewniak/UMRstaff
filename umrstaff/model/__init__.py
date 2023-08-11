@@ -67,7 +67,7 @@ from umrstaff.model.team import Team
 from umrstaff.model.team_members import TeamMembers
 from umrstaff.model.mailinglist import MailingList
 from umrstaff.model.mailing_list_directory import MailingListDirectory
-from umrstaff.model.contract import Contract
+from umrstaff.model.position import Position
 # from umrstaff.model.phone_number import PhoneNumber
 # from umrstaff.model.phone_directory import PhoneDirectory
 # from umrstaff.model.category import Category

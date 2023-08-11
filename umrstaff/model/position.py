@@ -5,21 +5,23 @@ from sqlalchemy.types import Integer, Text
 
 from umrstaff.model import DeclarativeBase, metadata, DBSession
 
-class Contract(DeclarativeBase):
-    __tablename__ = 'contract'
+class Position(DeclarativeBase):
+    __tablename__ = 'position'
 
     id = Column(Integer, primary_key=True)
     supervisor = Column(Integer, ForeignKey('staff.id'), nullable=True, index=True)
     staff = Column(Integer, ForeignKey('staff.id'), nullable=True, index=True)
     from_date = Column(Date)
     to_date = Column(Date)
-    poste = Column(Text)
+    status = Column(Text)
+    org = Column(Text)
     reference = Column(Text)
 
-    def add(self, contract):
-        self.supervisor = contract.supervisor
-        self.staff = contract.staff
-        self.from_date = contract.from_date
-        self.to_date = contract.to_date
-        self.poste = contract.poste
-        self.reference = contract.reference
+    def add(self, position):
+        self.supervisor = position.supervisor
+        self.staff = position.staff
+        self.from_date = position.from_date
+        self.to_date = position.to_date
+        self.status = position.status
+        self.org = position.org
+        self.reference = position.reference
