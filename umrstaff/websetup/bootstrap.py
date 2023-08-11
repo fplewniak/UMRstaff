@@ -12,37 +12,14 @@ def bootstrap(command, conf, vars):
     # <websetup.bootstrap.before.auth
     from sqlalchemy.exc import IntegrityError
     try:
-        admin_user = model.User()
-        admin_user.user_name = 'admin'
-        admin_user.display_name = 'Main administrator'
-        admin_user.email_address = 'frederic.plewniak@cnrs.fr'
-        admin_user.password = 'adminpass'
-        model.DBSession.add(admin_user)
-
-        user = model.User()
-        user.user_name = 'fplewniak'
-        user.display_name = 'fplewniak'
-        user.email_address = 'f.plewniak@unistra.fr'
-        user.password = 'fplewniak'
-        model.DBSession.add(user)
-
-        user = model.User()
-        user.user_name = 'charvin'
-        user.display_name = 'charvin'
-        user.email_address = 'charvin@unistra.fr'
-        user.password = 'charvin'
-        model.DBSession.add(user)
-
         admin_group = model.Group()
         admin_group.group_name = 'managers'
         admin_group.display_name = "Administrators' Group"
-        admin_group.users.append(admin_user)
         model.DBSession.add(admin_group)
 
         edit_group = model.Group()
         edit_group.group_name = 'editors'
         edit_group.display_name = "Editors' Group"
-        edit_group.users.append(admin_user)
         model.DBSession.add(edit_group)
 
         admin = model.Permission()
@@ -55,7 +32,6 @@ def bootstrap(command, conf, vars):
         adduser.permission_name = 'adduser'
         adduser.description = 'This permission grants the right to create new users'
         adduser.groups.append(admin_group)
-        adduser.groups.append(edit_group)
         model.DBSession.add(adduser)
 
         edit = model.Permission()
@@ -64,6 +40,20 @@ def bootstrap(command, conf, vars):
         edit.groups.append(admin_group)
         edit.groups.append(edit_group)
         model.DBSession.add(edit)
+
+        ### Users
+        print('Users')
+        users = pandas.read_csv('initial_data/users.csv')
+        for user in users.itertuples():
+            db_user = model.User()
+            db_user.user_name = user.user_name
+            db_user.display_name = user.display_name
+            db_user.email_address = user.email_address
+            db_user.password = user.password
+            for group in [admin_group, edit_group]:
+                if group.group_name in user.groups.split(','):
+                    group.users.append(db_user)
+            model.DBSession.add(db_user)
 
         #### Permanent staff members
         print('Staff members')
