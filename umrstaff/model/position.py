@@ -18,6 +18,7 @@ class Position(DeclarativeBase):
     status = Column(Text)
     org = Column(Text)
     reference = Column(Text)
+    misc = Column(Text)
 
     def add(self, position):
         self.supervisor = position.supervisor

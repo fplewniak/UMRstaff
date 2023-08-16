@@ -14,6 +14,7 @@ class Staff(DeclarativeBase):
     id = Column(Integer, primary_key=True)
     first_name = Column(Text)
     surname = Column(Text)
+    date_of_birth = Column(Date)
     email = Column(Text)
     office = Column(Integer)
     office_tel = Column(Text)
